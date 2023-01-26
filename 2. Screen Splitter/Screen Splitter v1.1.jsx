@@ -1,7 +1,7 @@
 function myScript(thisObj) {
     var colorIdx = 0; // Indicate next color of child solid
     function myScript_buildUI(thisObj){
-        var myPanel = (thisObj instanceof Panel) ? thisObj : new Window("palette", "Screen Splitter v1.0", undefined, {resizeable:true});
+        var myPanel = (thisObj instanceof Panel) ? thisObj : new Window("palette", "Screen Splitter v1.1", undefined, {resizeable:true});
 
         res = "group{orientation: 'column',\
         groupOne: Group{orientation: 'row',\
@@ -22,7 +22,7 @@ function myScript(thisObj) {
         \
         },\
         groupFour: Group{orientation: 'column',\
-            info: StaticText{text: 'Screen Splitter v1.0 by color·sky 2023/01/26', characters: 30, justify: 'left', properties:{multiline: true}},\
+            info: StaticText{text: 'Screen Splitter v1.1 by color·sky 2023/08/13', characters: 30, justify: 'left', properties:{multiline: true}},\
         }\
         }";
         myPanel.grp = myPanel.add(res);
@@ -138,7 +138,8 @@ function myScript(thisObj) {
         }
         for (var i = 0; i < selectedLayer.length; i++) {
             layer = selectedLayer[i];
-            layer.trackMatteLayer.enabled = true; // Set enabled if had matte
+            if (layer.trackMatteLayer != null)
+                layer.trackMatteLayer.enabled = true; // Set enabled if had matte
             layer.setTrackMatte(matte_layer, TrackMatteType.ALPHA)
         }
     }
