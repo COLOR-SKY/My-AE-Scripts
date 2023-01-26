@@ -22,7 +22,7 @@ function myScript(thisObj) {
         \
         },\
         groupFour: Group{orientation: 'column',\
-            info: StaticText{text: 'Screen Splitter v1.1 by color·sky 2023/01/26', characters: 30, justify: 'left', properties:{multiline: true}},\
+            info: StaticText{text: 'Screen Splitter v1.0 by color·sky 2023/01/26', characters: 30, justify: 'left', properties:{multiline: true}},\
         }\
         }";
         myPanel.grp = myPanel.add(res);
