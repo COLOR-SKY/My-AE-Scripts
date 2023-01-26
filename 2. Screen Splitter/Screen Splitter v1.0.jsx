@@ -16,12 +16,13 @@ function myScript(thisObj) {
             pixels: StaticText{text: 'pixels', justify: 'center'},\
         },\
         groupThree: Group{orientation: 'row',\
-            highlight: Button{text: 'Highlight Layer'},\
+            highlight: Button{text: 'Show Layer'},\
+            setMatte: Button{text: 'Set Matte'},\
             merge: Button{text: 'Merge'},\
         \
         },\
         groupFour: Group{orientation: 'column',\
-            info: StaticText{text: 'Screen Splitter v1.0 by color·sky 2022/08/13', characters: 30, justify: 'left', properties:{multiline: true}},\
+            info: StaticText{text: 'Screen Splitter v1.1 by color·sky 2023/01/26', characters: 30, justify: 'left', properties:{multiline: true}},\
         }\
         }";
         myPanel.grp = myPanel.add(res);
@@ -59,6 +60,13 @@ function myScript(thisObj) {
             highlightChildren(myPanel);
             app.endUndoGroup();
         }
+        myPanel.grp.groupThree.setMatte.onClick = function(){
+            app.beginUndoGroup("Set Matte");
+            this.active = true;
+            this.active = false;
+            setMatte(myPanel);
+            app.endUndoGroup();
+        }
         myPanel.grp.groupThree.merge.onClick = function(){
             app.beginUndoGroup("Merge");
             this.active = true;
@@ -86,6 +94,53 @@ function myScript(thisObj) {
         }
         myPanel.layout.layout(true);
         return myPanel;
+    }
+
+    function setMatte(myPanel){
+        var myComp = app.project.activeItem;
+        var selectedLayer = myComp.selectedLayers;
+        var layerCollection = myComp.layers;
+        var layer_selector_layer = myComp.layer("layer_selector");
+        myPanel.grp.groupFour.info.text = "Select a layer as source, then place layer_selector to the block you want to use as matte.";
+        if (layer_selector_layer == null){
+            layer_selector_layer = myComp.layers.addSolid([156/255,116/255,114/255], "layer_selector", 80, 80, 1);
+            layer_selector_layer.property("rotation").setValue(45);
+            layer_selector_layer.guideLayer = true;
+            layer_selector_layer.moveToBeginning();
+            return;
+        }
+        layer_selector_layer.moveToBeginning();
+        pos = layer_selector_layer.property("position").value;
+        matte_layer = null
+        for (var i = 1; i <= layerCollection.length; i++){
+            layer = layerCollection[i];
+            layer.selected = false;
+            if (layer.nullLayer || !layer.enabled || layer.Effects.property(layer.name) == null)
+                continue;
+            else {
+                cp = layer.Effects.property(layer.name)
+                ul = cp.property(1).value;
+                lr = cp.property(4).value;
+                // Check if pos is in the bounding box of corner pin
+                if (pos[0] >= ul[0] && pos[0] <= lr[0] && pos[1] >= ul[1] && pos[1] <= lr[1]){
+                    matte_layer = layer;
+                    break;
+                }
+            }
+        }
+        if (matte_layer == null){
+            myPanel.grp.groupFour.info.text = "No block at layer-selector's position";
+            return;
+        }
+        if (selectedLayer.length == 0){
+            myPanel.grp.groupFour.info.text = "Please select at least one layer you want to use as source.";
+            return;
+        }
+        for (var i = 0; i < selectedLayer.length; i++) {
+            layer = selectedLayer[i];
+            layer.trackMatteLayer.enabled = true; // Set enabled if had matte
+            layer.setTrackMatte(matte_layer, TrackMatteType.ALPHA)
+        }
     }
 
     function highlightChildren(myPanel){
